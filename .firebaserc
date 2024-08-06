@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "delta-vector-305212"
+  },
+  "targets": {
+    "delta-vector-305212": {
+      "hosting": {
+        "staging": [
+          "dashboard-affiliate-staging"
+        ],
+        "production": [
+          "dashboard-affiliate"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

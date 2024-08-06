@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        .no-data {
+            color: #D9534F; /* Greyish red color */
+        }
+        .error {
+            color: #D9534F; /* Greyish red color */
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="max-w-8xl mx-auto p-4">
+        <!-- Header -->
+        <div class="bg-white p-2 rounded-lg shadow mb-4">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+                <div class="flex flex-row md:flex-row items-start md:items-center h-18 min-h-0 hover:min-h-full">
+                    <img class="w-28 md:w-36 lg:w-36 h-auto p-4 border-r border-gray-300" src="https://firebasestorage.googleapis.com/v0/b/delta-vector-305212.appspot.com/o/logo-full.png?alt=media&token=6b45752c-3c1d-4775-8312-1519f120e689" alt="Logo" />
+                    <div class="ml-4">
+                        <h1 class="text-2xl font-bold">Referral Dashboard</h1>
+                        <span class="text-gray-700" id="welcomeText"></span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 mt-2 md:mt-0">
+                    <img src="" alt="Profile" id="profile_pic" class="w-10 h-10 rounded-full">
+                    <span class="font-bold" id="affiliateName"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-gray-500">Current Balance</div>
+                    <div class="text-2xl font-bold" id="currentBalance"></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-gray-500">Total Earned</div>
+                    <div class="text-2xl font-bold" id="totalEarned"></div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="text-gray-500">Your referral link</div>
+                <div class="flex items-center mt-2">
+                    <input id="referralLink" type="text" value="https://timewhip.com/?ref=rCqzT8sX40wTJTg" class="w-full p-2 border rounded-lg" readonly>
+                    <button id="copyButton" onclick="copyLink()" class="ml-2 bg-blue-500 text-white p-2 rounded-lg">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earning Chart and Customer List -->
+        <div class="max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 mx-auto">
+            <!-- Earning Chart -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold">Earning</h2>
+                </div>
+                <div class="mt-4 chart-container">
+                    <canvas id="earningChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Customer List -->
+            <div class="bg-white p-4 rounded-lg shadow overflow-x-auto">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold">Customer list</h2>
+                </div>
+                <table class="min-w-full mt-4">
+                    <thead>
+                        <tr>
+                            <th class="border px-4 py-2 text-left">S. No.</th>
+                            <th class="border px-4 py-2 text-left">Date</th>
+                            <th class="border px-4 py-2 text-left" id="commissionHeader">Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody">
+                        <!-- Rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow mt-4 max-w-7xl mx-auto">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">Recent Payout</h2>
+                <button id="requestPayoutButton" class="bg-blue-500 text-white p-2 rounded-lg">Request Payout</button>
+            </div>
+            <div class="overflow-x-auto mt-4">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="border px-4 py-2 text-left">S. No.</th>
+                            <th class="border px-4 py-2 text-left">Date</th>
+                            <th class="border px-4 py-2 text-left">Amount</th>
+                            <th class="border px-4 py-2 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payoutTableBody">
+                        <!-- Rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+         <div id="payoutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+                <h2 class="text-xl font-bold mb-4">Request Payouts</h2>
+                <div>
+                    <label for="payoutAmount" class="block text-gray-700">Enter Amount</label>
+                    <input type="number" id="payoutAmount" class="w-full p-2 border rounded-lg mt-2" placeholder="Enter amount">
+                    <p class="text-gray-500 text-sm mt-1">Minimum amount is 1000.</p>
+                    <p id="errorText" class="error hidden mt-2"></p>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button id="closeModalButton" class="bg-gray-500 text-white p-2 rounded-lg mr-2">Cancel</button>
+                    <button id="confirmPayoutButton" class="bg-blue-500 text-white p-2 rounded-lg">Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-white p-4 rounded-lg shadow mt-4 text-center">
+        <p class="text-gray-700">Copyright © 2024 | Raising Superstars™ | All Rights Reserved 
+            <a href="https://www.theprodigybaby.com/terms-of-use" target="_self" class="text-blue-500 underline ml-2">Terms of Use</a> 
+            <a href="https://www.theprodigybaby.com/privacy-policy" target="_self" class="text-blue-500 underline ml-2">Privacy Policy</a>
+        </p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="main.js">
+       
+    </script>
+</body>
+</html>
